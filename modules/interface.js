@@ -1,4 +1,4 @@
-var bgPage = document.getElementById('main');
+var bgPage = document.getElementById('code');
 
 var r = 0,
 g = 0,
@@ -34,6 +34,6 @@ function bg () {
 		bg();
 	}, 10);
 
-    document.getElementById('main').style.background = 'rgb('+r+','+g+','+b+')';
+    document.getElementById('code').style.background = 'rgb('+r+','+g+','+b+')';
 
 }

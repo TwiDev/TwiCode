@@ -1,3 +1,4 @@
+<script src="modules/interface.js"></script>
 
 <?php
         error_reporting(0);
@@ -639,7 +640,7 @@
                                              <!--<button type="button" class="el-button el-button--primary el-button--mini is-plain">
                                                <span> LIVE </span>
                                              </button>-->
-                                              <button onclick="getShare();" type="button" class="el-button el-button--danger el-button--mini is-plain">
+                                              <button onclick="stop();" type="button" class="el-button el-button--danger el-button--mini is-plain">
                                                 <!----><!----><span> STOP </span>
                                              </button>
 
@@ -1117,6 +1118,18 @@ var out = document.getElementById("console");
       document.getElementById("share").innerHTML = "<a href='https://code.twidev.fr/?code=" + sharecontent + "' target='blank_'>Share your code : https://code.twidev.fr/?code=" + sharecontent + "</a>";
    }
 
+   function stop() {
+        clearInterval();
+        clearTimeout();
+
+        loops.splice(0,loops.length);
+        conditons.splice(0,loops.length);
+        functions.clear();
+        variables.clear();
+
+        clearConsole();
+   }
+
    function getShare() {
       var sharecontent = "";
 
@@ -1376,6 +1389,7 @@ var out = document.getElementById("console");
         this.condition = null;
         this.repeat = false;
         this.args = [];
+        this.interval = null;
         this.name = "";
 
         this.childFromName = function(str) {
@@ -1390,6 +1404,7 @@ var out = document.getElementById("console");
             this.children.length = 0;
             this.variables = new Object;
             this.condition = null;
+            this.interval = null;
             this.repeat = false;
             this.name = "";
         };
@@ -1497,8 +1512,12 @@ var out = document.getElementById("console");
 
                         bg();
 
+                    }else if(color.startsWith("reset")) {
+
+                        document.getElementById("code").style.background = "#18222d";
+
                     }else{
-                        document.getElementById("main").style.background = color;
+                        document.getElementById("code").style.background = color;
 
                     
                     }
@@ -1535,17 +1554,20 @@ var out = document.getElementById("console");
 
                 functions.forEach(function(value, key) {
                     if(!value.children.includes(content) && content != "end") {
-                        if(functions.has(content.replaceAll("()", ""))) {
+                        if(functions.has(content.replaceAll("()", "").replaceAll(/\s/g, ''))) {
                             isFunction = true;
                         }
                     }
                 });
 
                 if(isFunction) {
-                    for(var f = 0; f < functions.get(content.replaceAll("()", "")).children.length; f++) {
-                        action(functions.get(content.replaceAll("()", "")).children[f]);
+                    for(var f = 0; f < functions.get(content.replaceAll("()", "").replaceAll(/\s/g, '')).children.length; f++) {
+                        action(functions.get(content.replaceAll("()", "").replaceAll(/\s/g, '')).children[f]);
+                        return;
                     }
                 }
+
+
 
             }
     }
@@ -1648,8 +1670,12 @@ var out = document.getElementById("console");
 
                 loops.push(loop);
                 
-                setInterval(() => {
+                loop.interval = setInterval(() => {
                     for(var f = 0; f < loop.children.length; f++) {
+                        if(!loops.includes(loop)) {
+                            clearInterval(loop.interval);
+                            return;
+                        }
                         action(loop.children[f]);
                     }
                 }, time);
